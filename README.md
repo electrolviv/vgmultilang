@@ -56,6 +56,19 @@ Third string is **MLang_console** , index 4 (auto)<br>
 
 ##### Files content
 
+`output.h` Generated Header File 
+```c
+enum enMultiLangStrID {
+   MLang_bank0_ = 0,
+   MLang_hello,
+   MLang_bank2_,
+   MLang_welcome,
+   MLang_console,
+   MLang_LastValidValue_
+};
+```
+
+`output_xx.c` Generated Source Files en / de / it / ru / ua ... 
 ```c++
 static const int last_idx = 3;
 
@@ -80,5 +93,7 @@ const char * GetString(uint16_t idx) {
 }
 
 ```
+
+
 
 (C) 2021 V01G04A81
