@@ -94,6 +94,39 @@ const char * GetString(uint16_t idx) {
 
 ```
 
+---
+#### Binary blocks
+
+files `txtdb_en.bin` / `txtdb_de.bin` / ...
+
+```c++
+
+struct stResHdr {
+
+   // @ 0x0 :  header struct, 32 bytes
+   
+   uint32_t pfx;        // Magic Number 0x12345678
+   uint16_t count;      // Records count
+   uint16_t reserved1;  // Reserved
+   uint16_t reserved2;  // Reserved
+   uint16_t reserved3;  // Reserved
+   uint16_t fsize;      // File size 
+   uint16_t crc16;      // CRC
+
+   // @ 0x20 : Strings adresses  
+   uint16_t offsetTableStrs[];
+   
+   // ... STRINGS RAW-DATA ...
+   
+   // String represented as 1) <byte-len> 2) <text>
+   // <text> format is ASCII or ASCIIZ optionaly, depends on configuration & settigs
+};
+
+```
+
+File content
+
+
 
 
 (C) 2021 V01G04A81
