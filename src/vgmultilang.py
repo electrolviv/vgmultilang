@@ -5,36 +5,61 @@ import os
 import json
 # import yaml
 
-
-def loadfile(jfname : str) -> {}:
-    """ Load JSON file """
-    try:
-        with open(jfname) as json_file:
-            data = json.load(json_file)
-            return data
-    except BaseException as exc:
-        print(exc)
-    return {}
+# Main resources object
+#  '#ver'
+#  'en' : []
+#  'de' : []
+#  'ru' : []
 
 
-def processFile(fname : str) -> (int, str):
-    """ Conversion main function
-    :param fname file to process
-    :return: tuple - (errcode : int, errstr : str)
-    """
+class ConverterClass:
 
-    # Check file valid
-    if not os.path.isfile(fname):
-        errstr = "Invalid file : " + fname
-        return 1, errstr
+    def __init__(self):
+        self.jtxtres = {}
+        self.maxidx = 0
 
-    print("Processing file : " + fname)
+    def ScanMaxLines(self):
+        pass
 
-    jcontent = loadfile(fname)
-    if not jcontent:
-        return 2, "Not valid MLang .json file !"
+    @staticmethod
+    def loadfile(jfname : str) -> {}:
+        """ Load JSON file """
+        try:
+            with open(jfname) as json_file:
+                data = json.load(json_file)
+                return data
+        except BaseException as exc:
+            print(exc)
+        return {}
 
-    return 0, "Done"
+
+    def processFile(self, fname : str) -> (int, str):
+        """ Conversion main function
+        :param fname file to process
+        :return: tuple - (errcode : int, errstr : str)
+        """
+
+        # Check file valid
+        if not os.path.isfile(fname):
+            errstr = "Invalid file : " + fname
+            return 1, errstr
+
+        print("Processing file : " + fname)
+
+        jcontent = self.loadfile(fname)
+        if not jcontent:
+            return 2, "Not valid MLang .json file !"
+
+        for fld in jcontent:
+            if fld == "#ver":
+                pass
+            elif fld == "#pfx":
+                pass
+            else:
+                print(jcontent[fld])
+
+        return 0, "Done"
+
 
 
 if __name__ == "__main__":
@@ -47,8 +72,9 @@ if __name__ == "__main__":
         print("vgmultilang.py <mlangfile.json>")
         exit(1)
 
-    # Call process
-    retcode, retstr = processFile(str(sys.argv[1]))
+    # Call process, report execution status
+    cnvobj = ConverterClass()
+    retcode, retstr = cnvobj.processFile(str(sys.argv[1]))
     print("*** Error! " + retstr if retcode else retstr)
     exit(retcode)
 
