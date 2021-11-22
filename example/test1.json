@@ -1,0 +1,24 @@
+{
+    "#ver"  : 1.0,
+    "#pfx"  : "MLang_",
+
+    "hello" : {
+      "idx"   : 10,
+      "en"    : "hello",
+      "de"    : "hallo",
+      "ru"    : "привет"
+    },
+
+    "welcome" : {
+      "idx"   : 11,
+      "en"    : "welcome",
+      "de"    : "willkommen",
+      "ru"    : "добро пожаловать"
+    },
+
+    "console" : {
+      "en"    : "console",
+      "de"    : "konsole",
+      "ru"    : "консоль"
+    }
+}
