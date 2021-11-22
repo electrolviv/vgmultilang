@@ -5,63 +5,46 @@ import os
 import json
 # import yaml
 
-# Main resources object
-#  '#ver'
-#  'en' : []
-#  'de' : []
-#  'ru' : []
+
+def loadfile(jfname: str) -> {}:
+    """ Load JSON file """
+    try:
+        with open(jfname) as json_file:
+            data = json.load(json_file)
+            return data
+    except BaseException as exc:
+        print(exc)
+    return {}
 
 
-class ConverterClass:
+class ConverterV1:
+    """ Version 1.0
 
-    def __init__(self):
-        self.jsrc = {}
+    JSON fields:
+        #ver == 1.0
+        #pfx * Optional, MStr_ as default
+        en : []
+        de : []
+        .. : []
+        ru : []
+
+    """
+
+    def __init__(self, j : {}):
+        """body of constructor"""
+        self.jsrc = j
         self.jtxtres = {}
         self.maxidx = 0
 
+    def __del__(self):
+        """body of destructor"""
+        print("Saving objects")
+        pass
 
-    # def ScanMaxLines(self) -> int:
-    #     r = 0
-    #     return r
-
-    @staticmethod
-    def loadfile(jfname : str) -> {}:
-        """ Load JSON file """
-        try:
-            with open(jfname) as json_file:
-                data = json.load(json_file)
-                return data
-        except BaseException as exc:
-            print(exc)
-        return {}
-
-
-    def processFile(self, fname : str) -> (int, str):
+    def process(self) -> (int, str):
         """ Conversion main function
-        :param fname file to process
         :return: tuple - (errcode : int, errstr : str)
         """
-
-        # Check file valid
-        if not os.path.isfile(fname):
-            errstr = "Invalid file : " + fname
-            return 1, errstr
-
-        print("Processing file : " + fname)
-
-        self.jsrc = self.loadfile(fname)
-        if not self.jsrc:
-            return 2, "Not valid MLang .json file !"
-
-        if '#ver' not in self.jsrc:
-            return 3, "Invalid MLang version"
-
-        if self.jsrc['#ver'] == 1.0:
-            return self.processVer1P0(self.jsrc)
-
-        return 100, "Invalid MLang version"
-
-    def processVer1P0(self, jsrc : {}) -> (int, str):
 
         # Scan Max Lines
         # self.maxidx = self.ScanMaxLines()
@@ -76,17 +59,16 @@ class ConverterClass:
             elif fld == "#pfx":
                 pfx = jsrc["#pfx"]
             else:
-                jres = self.jsrc[fld]
+                jres = jsrc[fld]
                 for jj in jres:
                     if jj == 'idx':
                         idx = jres['idx'] if 'idx' in jres else idx + 1
                     else:
                         print(jres[jj])
 
-
         return 0, "Done"
 
-
+# --------------------------------------------------------------------
 if __name__ == "__main__":
 
     cwdstr = os.getcwd()
@@ -97,11 +79,32 @@ if __name__ == "__main__":
         print("vgmultilang.py <mlangfile.json>")
         exit(1)
 
-    # Call process, report execution status
-    cnvobj = ConverterClass()
-    retcode, retstr = cnvobj.processFile(str(sys.argv[1]))
-    print("*** Error! " + retstr if retcode else retstr)
-    exit(retcode)
+    srcjfile = sys.argv[1]
+    print("Processing file : " + srcjfile)
+
+    # Check file valid
+    if not os.path.isfile(srcjfile):
+        print("Invalid file : " + srcjfile)
+        exit(2)
+
+    jcontent = loadfile(srcjfile)
+    if not jcontent:
+        print("Not valid MLang .json file !")
+        exit(3)
+
+    if '#ver' not in jcontent:
+        print("Invalid MLang version")
+        exit(4)
+
+    if jcontent['#ver'] == 1.0:
+        cnvobj = ConverterV1(jcontent)
+        retcode, retstr = cnvobj.process()
+        # Call process, report execution status
+        print("*** Error! " + retstr if retcode else retstr)
+        exit(retcode)
+    else:
+        print("Invalid MLang version")
+        exit(100)
 
 
 # from yaml import load, dump
@@ -117,3 +120,8 @@ if __name__ == "__main__":
 # # ...
 #
 # output = dump(data, Dumper=Dumper)
+
+# def ScanMaxLines(self) -> int:
+#     r = 0
+#     return r
+# def processFile(self, fname : str) -> (int, str):
