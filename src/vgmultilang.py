@@ -15,11 +15,14 @@ import json
 class ConverterClass:
 
     def __init__(self):
+        self.jsrc = {}
         self.jtxtres = {}
         self.maxidx = 0
 
-    def ScanMaxLines(self):
-        pass
+
+    # def ScanMaxLines(self) -> int:
+    #     r = 0
+    #     return r
 
     @staticmethod
     def loadfile(jfname : str) -> {}:
@@ -46,20 +49,42 @@ class ConverterClass:
 
         print("Processing file : " + fname)
 
-        jcontent = self.loadfile(fname)
-        if not jcontent:
+        self.jsrc = self.loadfile(fname)
+        if not self.jsrc:
             return 2, "Not valid MLang .json file !"
 
-        for fld in jcontent:
+        if '#ver' not in self.jsrc:
+            return 3, "Invalid MLang version"
+
+        if self.jsrc['#ver'] == 1.0:
+            return self.processVer1P0(self.jsrc)
+
+        return 100, "Invalid MLang version"
+
+    def processVer1P0(self, jsrc : {}) -> (int, str):
+
+        # Scan Max Lines
+        # self.maxidx = self.ScanMaxLines()
+        langs = []
+        pfx = "MStr"
+        jsrc = self.jsrc
+        idx = 0
+
+        for fld in jsrc:
             if fld == "#ver":
                 pass
             elif fld == "#pfx":
-                pass
+                pfx = jsrc["#pfx"]
             else:
-                print(jcontent[fld])
+                jres = self.jsrc[fld]
+                for jj in jres:
+                    if jj == 'idx':
+                        idx = jres['idx'] if 'idx' in jres else idx + 1
+                    else:
+                        print(jres[jj])
+
 
         return 0, "Done"
-
 
 
 if __name__ == "__main__":
