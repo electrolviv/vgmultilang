@@ -17,6 +17,16 @@ def loadfile(jfname: str) -> {}:
     return {}
 
 
+class StringsArray:
+
+    def __init__(self, defpfx='en'):
+        self.pfx = defpfx
+        self.arr = []
+
+    def append(self, varprops : []):
+        self.arr.append(varprops)
+
+
 class ConverterV1:
     """ Version 1.0
 
@@ -32,14 +42,22 @@ class ConverterV1:
 
     def __init__(self, j : {}):
         """body of constructor"""
+
+        # Source JSON
         self.jsrc = j
-        self.jtxtres = {}
-        self.maxidx = 0
+        # Output JSON
+        self.jresult = {}
+
+        self.curidx = 0
+        self.pfx = "MStr"
+
+        self.langs = []
+        self.db = []
+
 
     def __del__(self):
         """body of destructor"""
         print("Saving objects")
-        pass
 
     def process(self) -> (int, str):
         """ Conversion main function
@@ -48,25 +66,45 @@ class ConverterV1:
 
         # Scan Max Lines
         # self.maxidx = self.ScanMaxLines()
-        langs = []
-        pfx = "MStr"
         jsrc = self.jsrc
-        idx = 0
 
-        for fld in jsrc:
-            if fld == "#ver":
+        # first loop
+        for varname in jsrc:
+            if varname == "#ver":
                 pass
-            elif fld == "#pfx":
-                pfx = jsrc["#pfx"]
+            elif varname == "#pfx":
+                self.pfx = jsrc["#pfx"]
             else:
-                jres = jsrc[fld]
-                for jj in jres:
-                    if jj == 'idx':
-                        idx = jres['idx'] if 'idx' in jres else idx + 1
-                    else:
-                        print(jres[jj])
+                ret = self.insert(varname, jsrc[varname])
+                if not ret:
+                    return 5, f"Insert failed on variable '{varname}'"
 
-        return 0, "Done"
+        return 0, "Completed"
+
+    def GetStringsBank(self, langpfx : str) -> StringsArray:
+        dbidx = self.langs.index(langpfx)
+        return self.db[dbidx]
+
+    def insert(self, varname : str, j : {}) -> bool:
+
+        for langpfx in j:
+            if langpfx == 'idx':
+                if j['idx'] < self.curidx:
+                    return False
+                self.curidx = j['idx']
+            else:
+                if langpfx not in self.langs:
+                    self.langs.append(langpfx)
+                    strarr = StringsArray(langpfx)
+                    self.db.append(strarr)
+
+                # Insert record into local dedicated db
+                strarr = self.GetStringsBank(langpfx)
+                strarr.append([varname, j[langpfx], self.curidx])
+
+        self.curidx += 1
+
+        return True
 
 # --------------------------------------------------------------------
 if __name__ == "__main__":
@@ -100,7 +138,7 @@ if __name__ == "__main__":
         cnvobj = ConverterV1(jcontent)
         retcode, retstr = cnvobj.process()
         # Call process, report execution status
-        print("*** Error! " + retstr if retcode else retstr)
+        print(("*** Error! " if retcode else "Done. ") + retstr)
         exit(retcode)
     else:
         print("Invalid MLang version")
